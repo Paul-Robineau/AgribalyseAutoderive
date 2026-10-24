@@ -1,0 +1,37 @@
+{
+  "detail_rows": 236,
+  "unique_products": 104,
+  "unique_agribalyse_codes": 62,
+  "conf_HIGH": 75,
+  "conf_MEDIUM": 82,
+  "conf_LOW": 79,
+  "total_mass_kg": 997.07,
+  "cc_best_kgCO2eq": 1231.22,
+  "cc_worst_kgCO2eq": 1495.38,
+  "ef_best_mPt": 153.247,
+  "ef_worst_mPt": 183.1102,
+  "best_rows": 169,
+  "worst_rows": 169,
+  "per_group": {
+    "WE1": {
+      "mass_kg": 308.98,
+      "cc_best": 335.9,
+      "cc_worst": 390.76
+    },
+    "WE2": {
+      "mass_kg": 166.64,
+      "cc_best": 309.77,
+      "cc_worst": 321.8
+    },
+    "WE3": {
+      "mass_kg": 222.1,
+      "cc_best": 291.88,
+      "cc_worst": 320.01
+    },
+    "WE4": {
+      "mass_kg": 299.35,
+      "cc_best": 293.66,
+      "cc_worst": 462.82
+    }
+  }
+}

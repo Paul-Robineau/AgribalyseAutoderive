@@ -1,0 +1,1528 @@
+# decomposition.yml – IESF Knowledge Convention
+# ================================================
+# Maps each invoice line (invoice.xlsx) to elementary products with sourced
+# mass estimates. Read by inventory_builder.py.
+#
+# Methodology references:
+#   GEMRCN  – Recommandations relatives à la nutrition, 2011 (rev. 2015)
+#   ANSES   – INCA3 étude individuelle nationale, 2017
+#   Traiteur usage – norme professionnelle traiteur collectif (France)
+#
+# Agribalyse v3.2 codes are verified.  Multiple codes per component represent
+# candidate products (best / worst scenario); agribalyse_autoderive.py selects the
+# lowest / highest EF score among them.
+#
+# Confidence levels:
+#   HIGH   – quantity from invoice or certified GEMRCN norm
+#   MEDIUM – hypothese de l'etude, usage courant en restauration
+#   LOW    – estimated by proxy or analogy (forfait without detail, unknown composition)
+
+items:
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # WE1 – Social Event – Swing Bar Fontainebleau (04/10/2025)
+  # Forfait global 1 200 EUR / 60 pers = 20 EUR/pers (boissons + snacking)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - group: WE1
+    meal_type: "Social Event"
+    invoice_item: "Boissons (vins bieres softs)"
+    # nb_guests: 60  (from invoice)
+    components:
+      - name: "Vin rouge"
+        volume_mL_per_person: 225
+        density_kg_L: 1.0
+        agribalyse_codes: [5214]
+        confidence: MEDIUM
+        source: "Hypothese de l'etude : 1,5 verre de vin rouge (150 mL) par personne en cocktail"
+
+      - name: "Vin blanc sec"
+        volume_mL_per_person: 75
+        density_kg_L: 1.0
+        agribalyse_codes: [5215]
+        confidence: MEDIUM
+        source: "Hypothese de l'etude : 0,5 verre de vin blanc, un tiers des convives"
+
+      - name: "Biere"
+        volume_mL_per_person: 330
+        density_kg_L: 1.0
+        agribalyse_codes:
+          - {code: 5001, confidence: MEDIUM}
+          - {code: 5011, confidence: LOW}
+        source: "Standards service bar evenementiel: 1 verre biere (33 cL). Codes 5001 (coeur de marche) / 5011 (specialite)"
+
+      - name: "Boisson gazeuse sucree (soft)"
+        volume_mL_per_person: 250
+        density_kg_L: 1.0
+        agribalyse_codes: [18049, 18010]
+        confidence: LOW
+        source: "Hypothese: 1 verre soft (25 cL). Proxy: boisson gazeuse aux fruits sucree / limonade"
+
+  - group: WE1
+    meal_type: "Social Event"
+    invoice_item: "Snacking (planches aperitives variees)"
+    components:
+      - name: "Fromage pour plateau aperitif"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [12001, 12115]
+        confidence: MEDIUM
+        source: "Hypothese de l'etude : 40 g de fromage par personne en aperitif. Codes: camembert / emmental"
+
+      - name: "Houmous/tartinade vegetale"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [25621]
+        confidence: LOW
+        source: "VEGETARIEN. Hypothese de l'etude : 40 g de tartinade par personne. Code: houmous"
+
+      - name: "Olives aperitif"
+        pieces_per_person: 1
+        mass_per_piece_g: 30
+        agribalyse_codes: [13147]
+        confidence: LOW
+        source: "Hypothese 30 g olives/pers. Ref: portions standard cocktail"
+
+      - name: "Chips"
+        pieces_per_person: 1
+        mass_per_piece_g: 30
+        agribalyse_codes: [4004]
+        confidence: MEDIUM
+        source: "Hypothese 30 g chips/pers (1 poignee). Ref: portions standard cocktail"
+
+      - name: "Pain / crackers aperitif"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [7100, 38407]
+        confidence: LOW
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "Hypothese de l'etude : 40 g de pain ou crackers par personne. Codes: pain courant / biscuit aperitif feuillete"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # WE1 – Petit-dejeuner – La Gatinerie (6 EUR/pers HT, 65 pers × 2 jours = 130)
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - group: WE1
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Petit-dejeuner (cafe the mini-viennoiseries fruits jus de fruits sucre lait)"
+    nb_guests: 130
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "GEMRCN 2011 table IV: 1 boisson chaude (200 mL) par PDJ collectif"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "GEMRCN 2011: 30 % des convives prennent du the (200 mL × 0.30 = 60 mL/couvert moyen)"
+
+      - name: "Mini-viennoiseries (croissant, pain au chocolat)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes:
+          - {code: 7620, confidence: HIGH}
+          - {code: 7730, confidence: MEDIUM}
+          - {code: 7615, confidence: MEDIUM}
+        source: "GEMRCN 2011: 40-60 g viennoiseries/PDJ collectif. Norme traiteur: 2 mini-pieces ~30 g. Codes: croissant beurre / pain au chocolat / croissant ordinaire"
+
+      - name: "Fruits frais (salade de fruits ou fruit entier)"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [13708, 13034, 13039]
+        confidence: MEDIUM
+        source: "GEMRCN 2011: 100-150 g de fruits par repas. Codes: macedoine fruits / orange / pomme crue"
+
+      - name: "Jus de fruits (orange ou multifruits)"
+        volume_mL_per_person: 150
+        density_kg_L: 1.0
+        agribalyse_codes:
+          - {code: 2012, confidence: HIGH, mass_cv: 0.187}
+          - {code: 2048, confidence: MEDIUM, mass_cv: 0.2}
+        source: "GEMRCN 2011: 100-200 mL jus de fruits au PDJ. Codes: jus d'orange concentre / jus multifruit base pomme"
+
+      - name: "Sucre en morceaux"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "Standard dosette individuelle: 1 sachet sucre = 5 g"
+
+      - name: "Lait demi-ecreme"
+        mass_g_per_person: 30
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "Standard dosette lait traiteur: mini-brique ~30 mL (densité ~1.03 kg/L → ~30 g). Code: lait demi-ecreme UHT"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # WE1 – Pause cafe matin – La Gatinerie (4 EUR/pers HT, 65 pers × 2 jours = 130)
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - group: WE1
+    meal_type: "Pause cafe"
+    invoice_item: "Pause cafe matin (cafe the cakes maison sucre lait)"
+    nb_guests: 130
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "GEMRCN 2011: 1 boisson chaude (200 mL) par pause"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "Repartition cafe/the: 30 % the (200 mL × 0.30)"
+
+      - name: "Cake maison (1 tranche)"
+        pieces_per_person: 1
+        mass_per_piece_g: 80
+        agribalyse_codes: [23909, 23941]
+        confidence: MEDIUM
+        source: "GEMRCN 2011: 80 g dessert en collectif. Tranche de cake ~80 g. Codes: cake aux fruits / gateau moelleux fourre"
+
+      - name: "Sucre en morceaux"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "Standard dosette individuelle: 5 g"
+
+      - name: "Lait demi-ecreme"
+        mass_g_per_person: 30   # 29 mL x 1.03 kg/L, rounded to 30 g as in the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "Standard dosette lait traiteur: 30 mL"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # WE1 – Dejeuner – La Gatinerie (20.90 EUR/pers HT, 65 pers × 2 jours = 130)
+  # Menu non detaille → hypotheses basees sur traiteur standard collectif
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - group: WE1
+    meal_type: "Dejeuner"
+    invoice_item: "Repas traiteur (entree+plat+accompagnement+dessert+pain produits locaux saison)"
+    nb_guests: 130
+    components:
+      - name: "Entree (crudites/salade composee)"
+        pieces_per_person: 1
+        mass_per_piece_g: 150
+        agribalyse_codes:
+          - {code: 25604, confidence: MEDIUM}
+          - {code: 25608, confidence: LOW}
+        source: "GEMRCN 2011: entree 80-150 g (norme restauration collective). Menu non detaille -> proxy salade verte / tabboule"
+
+      - name: "Plat principal vegetarien (legumes cuisines)"
+        pieces_per_person: 1
+        mass_per_piece_g: 200
+        agribalyse_codes: [25018, 8297]
+        confidence: LOW
+        source: "GEMRCN 2011: plat principal legumes 200-300 g. TOUS REPAS VEGETARIENS. Proxy: ratatouille / flan de legumes"
+
+      - name: "Accompagnement legumes cuisines"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [25018, 20009]
+        confidence: LOW
+        mass_cv: 0.35   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "GEMRCN 2011: legumes cuits en accompagnement 100-150 g"
+
+      - name: "Accompagnement feculent (riz ou pommes de terre)"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [9104, 4028]
+        confidence: LOW
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "GEMRCN 2011: feculent cuit 150-200 g. Codes: riz blanc cuit / pomme de terre bouillie"
+
+      - name: "Dessert patissier"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [23525, 23909]
+        confidence: LOW
+        source: "GEMRCN 2011: dessert 100-130 g. Codes: flan patissier / cake aux fruits"
+
+      - name: "Pain"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [7100]
+        confidence: HIGH
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "GEMRCN 2011: pain 40 g par repas. Code: pain courant francais"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # WE1 – Pause cafe apres-midi samedi – La Gatinerie (2 EUR/pers, 65 pers)
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - group: WE1
+    meal_type: "Pause cafe"
+    invoice_item: "Pause cafe apres-midi samedi (cafe the cake maison sucre lait)"
+    # nb_guests: 65  (from invoice)
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe (200 mL)"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % du groupe prend du the"
+
+      - name: "Cake maison (1 tranche)"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [23909, 23941]
+        confidence: MEDIUM
+        source: "Budget reduit (2 EUR vs 4 EUR matin) -> tranche plus petite ~60 g"
+
+      - name: "Sucre en morceaux"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "Standard dosette: 5 g"
+
+      - name: "Lait demi-ecreme"
+        mass_g_per_person: 30   # value of the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "Standard dosette lait: 30 mL"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # WE2 – Saveur Savoie Traiteur (15-16/11/2025)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  # – Petit-dejeuner samedi (60 pers) –
+
+  - group: WE2
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Mini-viennoiseries (2 pieces par personne)"
+    components:
+      - name: "Mini-viennoiseries"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes:
+          - {code: 7620, confidence: HIGH}
+          - {code: 7615, confidence: MEDIUM}
+        source: "Saveur Savoie: 2 mini-viennoiseries/pers (~30 g/piece). GEMRCN 2011: 40-60 g viennoiseries PDJ. Codes: croissant beurre / croissant ordinaire"
+
+  - group: WE2
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Boisson chaude (cafe/the)"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe (200 mL). Boisson chaude 0.948 EUR HT/pers"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % du groupe prend du the (200 mL × 0.30)"
+
+  - group: WE2
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Jus de fruits"
+    components:
+      - name: "Jus de fruits (orange ou multifruits)"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes:
+          - {code: 2012, confidence: HIGH}
+          - {code: 2074, confidence: MEDIUM}
+        source: "12 bouteilles (1 L) pour 60 pers = 200 mL/pers. Prix unitaire coherent avec bouteille 1 L. Codes: jus d'orange / jus de pomme"
+
+  # – Pause cafe samedi (60 pers) –
+
+  - group: WE2
+    meal_type: "Pause cafe"
+    invoice_item: "Mignardises sucrees pause (mini cannele + pastei di nata + financier pistache)"
+    components:
+      - name: "Mini cannele"
+        pieces_per_person: 1
+        mass_per_piece_g: 25
+        agribalyse_codes: [23909]
+        confidence: MEDIUM
+        source: "1 mini cannele ~25 g. Ref: poids standard mini-cannele patisserie. Proxy: cake aux fruits"
+
+      - name: "Mini pastei di nata"
+        pieces_per_person: 1
+        mass_per_piece_g: 30
+        agribalyse_codes: [23525]
+        confidence: MEDIUM
+        source: "1 mini pastel de nata ~30 g. Proxy: flan patissier"
+
+      - name: "Mini financier pistache"
+        pieces_per_person: 1
+        mass_per_piece_g: 20
+        agribalyse_codes: [23941]
+        confidence: MEDIUM
+        source: "1 mini financier ~20 g. Proxy: gateau moelleux fourre"
+
+  - group: WE2
+    meal_type: "Pause cafe"
+    invoice_item: "Cake (marbre + citron)"
+    components:
+      - name: "Cake (marbre/citron)"
+        pieces_per_person: 1
+        mass_per_piece_g: 50
+        agribalyse_codes: [23909]
+        confidence: MEDIUM
+        source: "6 cakes pour 60 pers. Cake ~500 g → 3 000 g / 60 = 50 g/pers. Ref: poids standard cake entier 400-600 g"
+
+  - group: WE2
+    meal_type: "Pause cafe"
+    invoice_item: "Boisson chaude pause (cafe/the)"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe (200 mL)"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the (200 mL × 0.30)"
+
+  # – Dejeuner samedi – mignardises salees (60 pers, 10 pieces/pers)
+  # Items: navette antipasti, tarte champignons, potimarron noisette parmesan,
+  #        panacotta reblochon, chou-fleur condiment – TOUS VEGETARIENS
+
+  - group: WE2
+    meal_type: "Dejeuner"
+    invoice_item: "Mignardises salees dejeuner (navette antipasti + tarte champignons + potimarron parmesan + panacotta reblochon + chou-fleur)"
+    components:
+      - name: "Mini navette antipasti pesto (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes: [25544]
+        confidence: LOW
+        source: "2 mini-navettes antipasti ~30 g chacune. Ref: poids standard mini-sandwich 25-35 g. VEGETARIEN. Proxy: sandwich garnitures"
+
+      - name: "Tarte fine champignons (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes:
+          - {code: 25561, confidence: MEDIUM}
+          - {code: 25405, confidence: LOW}
+        source: "2 mini-tartes fines champignons ~30 g. VEGETARIEN. Codes: tarte tomate / quiche lorraine"
+
+      - name: "Bouchee potimarron noisette parmesan (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes: [8297]
+        confidence: LOW
+        source: "2 bouchees potimarron ~30 g. VEGETARIEN. Proxy: flan de legumes"
+
+      - name: "Panacotta reblochon compotee oignons (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes: [12001]
+        confidence: LOW
+        source: "2 panacottas reblochon ~30 g. VEGETARIEN. Proxy: camembert (fromage)"
+
+      - name: "Bouchee chou-fleur condiment (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 25
+        agribalyse_codes: [20017]
+        confidence: LOW
+        source: "2 bouchees chou-fleur ~25 g. VEGETARIEN. Code: chou-fleur cuit"
+
+  # – Dejeuner samedi – mignardises sucrees (3 pieces/pers)
+
+  - group: WE2
+    meal_type: "Dejeuner"
+    invoice_item: "Mignardises sucrees dejeuner (mini tatin + macaron chocolat + mini baba rhum)"
+    components:
+      - name: "Mini tarte tatin"
+        pieces_per_person: 1
+        mass_per_piece_g: 30
+        agribalyse_codes: [23525]
+        confidence: MEDIUM
+        source: "1 mini tatin ~30 g. Ref: poids standard mini-patisserie. Proxy: flan patissier"
+
+      - name: "Macaron au chocolat"
+        pieces_per_person: 1
+        mass_per_piece_g: 15
+        agribalyse_codes: [23032]
+        confidence: MEDIUM
+        source: "1 macaron ~15 g. Ref: poids standard macaron patissier. Proxy: brownie chocolat"
+
+      - name: "Mini baba au rhum"
+        pieces_per_person: 1
+        mass_per_piece_g: 25
+        agribalyse_codes: [23909]
+        confidence: MEDIUM
+        source: "1 mini baba ~25 g. Proxy: cake aux fruits"
+
+  # – Petit-dejeuner dimanche (55 pers) –
+
+  - group: WE2
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Mini-viennoiserie dimanche"
+    components:
+      - name: "Mini-viennoiserie"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes:
+          - {code: 7620, confidence: HIGH}
+          - {code: 7615, confidence: MEDIUM}
+        source: "55 pieces pour 55 pers = 1 viennoiserie/pers (reduit vs samedi). ~60 g. Codes: croissant beurre / croissant ordinaire"
+
+  - group: WE2
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Boisson chaude dimanche (cafe/the)"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe (200 mL)"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+  - group: WE2
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Jus de fruits dimanche"
+    components:
+      - name: "Jus de fruits"
+        volume_mL_per_person: 182
+        density_kg_L: 1.0
+        agribalyse_codes:
+          - {code: 2012, confidence: HIGH}
+          - {code: 2074, confidence: MEDIUM}
+        source: "10 bouteilles (1 L) pour 55 pers = 182 mL/pers"
+
+  # – Pause cafe dimanche (55 pers, legere) –
+
+  - group: WE2
+    meal_type: "Pause cafe"
+    invoice_item: "Cake dimanche (pistache + vanille)"
+    components:
+      - name: "Cake (pistache/vanille)"
+        pieces_per_person: 1
+        mass_per_piece_g: 36
+        agribalyse_codes: [23909]
+        confidence: MEDIUM
+        source: "4 cakes pour ~55 pers. Cake ~500 g → 2 000 g / 55 = 36 g/pers. Pause legere (pas de boisson chaude facturee separement)"
+
+  # – Dejeuner dimanche – mignardises salees (50 pers)
+
+  - group: WE2
+    meal_type: "Dejeuner"
+    invoice_item: "Mignardises salees dejeuner dim (betterave chevre yuzu + gougere beaufort + shot carotte coco + gyoza legumes + risotto crozets beaufort cepes)"
+    components:
+      - name: "Bouchee betterave chevre yuzu (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes: [8297]
+        confidence: LOW
+        source: "2 bouchees betterave-chevre ~30 g. VEGETARIEN. Proxy: flan de legumes"
+
+      - name: "Gougere au Beaufort (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 25
+        agribalyse_codes: [25401]
+        confidence: MEDIUM
+        source: "2 gougeres ~25 g. VEGETARIEN. Code: feuillete fromage"
+
+      - name: "Shot carotte citron vert coco (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes: [25913]
+        confidence: MEDIUM
+        source: "2 shots soupe ~30 mL. VEGETARIEN. Code: soupe carotte"
+
+      - name: "Gyoza aux legumes (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 25
+        agribalyse_codes: [25420]
+        confidence: LOW
+        source: "2 gyozas ~25 g. VEGETARIEN. Proxy: nem (plus proche dispo)"
+
+      - name: "Risotto crozets beaufort cepes (x2)"
+        pieces_per_person: 2
+        mass_per_piece_g: 30
+        agribalyse_codes: [25088]
+        confidence: LOW
+        source: "2 bouchees risotto ~30 g. VEGETARIEN. Proxy: riz cantonais"
+
+  # – Dejeuner dimanche – mignardises sucrees (50 pers)
+
+  - group: WE2
+    meal_type: "Dejeuner"
+    invoice_item: "Mignardises sucrees dejeuner dim (mini coulant chocolat + mini tropezienne + macaron framboise)"
+    components:
+      - name: "Mini coulant chocolat"
+        pieces_per_person: 1
+        mass_per_piece_g: 30
+        agribalyse_codes: [23032]
+        confidence: MEDIUM
+        source: "1 mini coulant ~30 g. Proxy: brownie chocolat"
+
+      - name: "Mini tropezienne"
+        pieces_per_person: 1
+        mass_per_piece_g: 30
+        agribalyse_codes: [23941]
+        confidence: MEDIUM
+        source: "1 mini tropezienne ~30 g. Proxy: gateau moelleux fourre"
+
+      - name: "Macaron framboise"
+        pieces_per_person: 1
+        mass_per_piece_g: 15
+        agribalyse_codes: [23032]
+        confidence: MEDIUM
+        source: "1 macaron ~15 g. Proxy: brownie"
+
+  # – Plateau repas dimanche (8 plateaux complets) –
+
+  - group: WE2
+    meal_type: "Dejeuner"
+    invoice_item: "Plateau repas dim (E:betterave chevre yuzu P:risotto crozets beaufort cepes D:mi cuit chocolat + pain)"
+    components:
+      - name: "Entree betterave chevre yuzu"
+        pieces_per_person: 1
+        mass_per_piece_g: 150
+        agribalyse_codes: [8297]
+        confidence: LOW
+        source: "Entree plateau ~150 g. VEGETARIEN. Proxy: flan de legumes"
+
+      - name: "Risotto crozets beaufort cepes"
+        pieces_per_person: 1
+        mass_per_piece_g: 250
+        agribalyse_codes: [25088]
+        confidence: LOW
+        source: "Plat principal ~250 g. VEGETARIEN. Proxy: riz cantonais"
+
+      - name: "Mi-cuit chocolat"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [23032]
+        confidence: HIGH
+        source: "Dessert ~100 g. Code: brownie au chocolat"
+
+      - name: "Pain"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [7100]
+        confidence: HIGH
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "40 g pain. GEMRCN 2011"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # WE2 – Repas supplementaire – La Paniere boulangerie (15/11/2025)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - group: WE2
+    meal_type: "Repas supplementaire"
+    invoice_item: "Ficelle gourmande CO"
+    components:
+      - name: "Ficelle gourmande (sandwich garni)"
+        mass_per_unit_kg: 0.200
+        nb_units: 7
+        agribalyse_codes:
+          - {code: 25544, confidence: MEDIUM}
+          - {code: 25517, confidence: LOW}
+        source: "7 pieces a 1.35 EUR. Ficelle gourmande = sandwich type baguette garni ~200 g. Ref: poids standard ficelle boulangerie. Codes: sandwich pain de mie / sandwich jambon beurre"
+
+  - group: WE2
+    meal_type: "Repas supplementaire"
+    invoice_item: "Pizza legumes marine"
+    components:
+      - name: "Pizza aux legumes"
+        mass_per_unit_kg: 0.250
+        nb_units: 2
+        agribalyse_codes: [25404, 25561]
+        confidence: MEDIUM
+        source: "2 parts de pizza a 4.70 EUR. Part individuelle ~250 g. Ref: poids standard part pizza boulangerie. Codes: pizza margherita / tarte a la tomate"
+
+  - group: WE2
+    meal_type: "Repas supplementaire"
+    invoice_item: "Tartelette tomate V2"
+    components:
+      - name: "Tartelette a la tomate"
+        mass_per_unit_kg: 0.180
+        nb_units: 2
+        agribalyse_codes: [25561]
+        confidence: HIGH
+        source: "2 pieces a 4.30 EUR. Tartelette individuelle ~180 g. Code: tarte a la tomate"
+
+  - group: WE2
+    meal_type: "Repas supplementaire"
+    invoice_item: "Quiche fromage feuilletes"
+    components:
+      - name: "Quiche au fromage"
+        mass_per_unit_kg: 0.200
+        nb_units: 2
+        agribalyse_codes: [25405, 25401]
+        confidence: MEDIUM
+        source: "2 pieces a 4.30 EUR. Part de quiche ~200 g. Codes: quiche lorraine / feuillete au fromage"
+
+  - group: WE2
+    meal_type: "Repas supplementaire"
+    invoice_item: "Veggie bowl (Uber Eats)"
+    components:
+      - name: "Bowl vegetal (legumes, cereales, graines)"
+        mass_per_unit_kg: 0.400
+        nb_units: 4
+        agribalyse_codes: [25608, 25604]
+        confidence: LOW
+        source: "4 bowls a 12.90 EUR. Bowl salade composee cereales ~400 g. Ref: poids standard bowl restaurant. Proxy: taboule / salade verte"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # WE2 – Social Event – Le Corsaire Chambery (15/11/2025)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Planche fromage 1 metre"
+    components:
+      - name: "Fromage varie (plateau/planche)"
+        mass_per_unit_kg: 1.667
+        nb_units: 3
+        agribalyse_codes: [12001, 12115, 12110, 12020]
+        confidence: LOW
+        source: "3 planches 1 m a 46 EUR. Planche 1 m ~1.5-2 kg de fromage. Ref: standards traiteur (planche 1 m = 8-12 portions, 150-180 g/portion). Codes: camembert / emmental / comte / brie"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Planche vegetarienne (sans lactose)"
+    components:
+      - name: "Houmous"
+        mass_per_unit_kg: 0.100
+        nb_units: 6
+        agribalyse_codes: [25621]
+        confidence: MEDIUM
+        source: "6 planches vegetariennes a 16 EUR. Composant houmous ~100 g/planche"
+
+      - name: "Crudites variees (carottes, concombre)"
+        mass_per_unit_kg: 0.120
+        nb_units: 6
+        agribalyse_codes: [20009, 20019]
+        confidence: MEDIUM
+        source: "6 planches vegetariennes. Composant crudites ~120 g/planche. Codes: carotte crue / concombre"
+
+      - name: "Olives"
+        mass_per_unit_kg: 0.050
+        nb_units: 6
+        agribalyse_codes: [13147]
+        confidence: MEDIUM
+        source: "6 planches vegetariennes. Composant olives ~50 g/planche"
+
+      - name: "Graines et fruits secs"
+        mass_per_unit_kg: 0.050
+        nb_units: 6
+        agribalyse_codes: [15048]
+        confidence: MEDIUM
+        source: "6 planches vegetariennes. Composant graines/fruits secs ~50 g/planche. Code: melange aperitif graines"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Paniers de frites (sans lactose)"
+    components:
+      - name: "Frites de pommes de terre"
+        mass_per_unit_kg: 0.200
+        nb_units: 6
+        agribalyse_codes: [4032]
+        confidence: HIGH
+        source: "6 paniers a 6.50 EUR. Panier ~200 g. Ref: portion standard frites restaurant (150-250 g). Code: frites surgeles cuites"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Pizzas Margarita"
+    components:
+      - name: "Pizza margherita"
+        mass_per_unit_kg: 0.450
+        nb_units: 6
+        agribalyse_codes:
+          - {code: 25404, confidence: HIGH}
+          - {code: 25478, confidence: MEDIUM}
+        source: "6 pizzas a 12.50 EUR. Pizza entiere ~450 g. Ref: poids standard pizza individuelle restaurant (350-500 g). Codes: pizza margherita / pizza 4 fromages"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Planche club sandwich chevre-figue"
+    components:
+      - name: "Club sandwich chevre-figue"
+        mass_per_unit_kg: 0.300
+        nb_units: 6
+        agribalyse_codes: [25544]
+        confidence: LOW
+        source: "6 planches a 13 EUR. Planche mini-sandwichs ~300 g. Proxy: sandwich garnitures diverses"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Gyozas vegetariens (sans lactose)"
+    components:
+      - name: "Gyozas vegetariens"
+        mass_per_unit_kg: 0.220
+        nb_units: 5
+        agribalyse_codes: [25420]
+        confidence: LOW
+        source: "5 portions a 12 EUR. Portion ~8 gyozas (~220 g). Ref: portion standard gyozas restaurant (200-250 g). Proxy: nem/pate imperial"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Planche libanaise vege"
+    components:
+      - name: "Houmous"
+        mass_per_unit_kg: 0.100
+        nb_units: 6
+        agribalyse_codes: [25621]
+        confidence: MEDIUM
+        source: "6 planches libanaises a 16 EUR. Composant houmous ~100 g/planche"
+
+      - name: "Falafels / boulettes vegetales"
+        mass_per_unit_kg: 0.100
+        nb_units: 6
+        agribalyse_codes: [25590]
+        confidence: LOW
+        source: "6 planches libanaises. Composant boulettes/falafels ~100 g/planche. Proxy: falafel / boulette pois-chiche"
+
+      - name: "Taboule"
+        mass_per_unit_kg: 0.100
+        nb_units: 6
+        agribalyse_codes: [25608]
+        confidence: MEDIUM
+        source: "6 planches libanaises. Composant taboule ~100 g/planche"
+
+      - name: "Crudites (tomate, concombre)"
+        mass_per_unit_kg: 0.050
+        nb_units: 6
+        agribalyse_codes: [20009]
+        confidence: MEDIUM
+        source: "6 planches libanaises. Composant crudites ~50 g/planche"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Planche sucree 1 metre"
+    components:
+      - name: "Assortiment patisseries (planche sucree)"
+        mass_per_unit_kg: 1.000
+        nb_units: 1
+        agribalyse_codes: [23909, 23032]
+        confidence: LOW
+        source: "1 planche sucree 1 m a 50 EUR. Assortiment patisseries ~1 kg. Ref: planche dessert traiteur 1 m = 1-1.5 kg"
+
+      - name: "Fruits frais (planche sucree)"
+        mass_per_unit_kg: 0.500
+        nb_units: 1
+        agribalyse_codes: [13708]
+        confidence: LOW
+        source: "1 planche sucree. Composant fruits ~500 g. Code: macedoine fruits"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Girafe biere 3L (Cristal Brasserie Mont Blanc)"
+    components:
+      - name: "Biere (girafe 3L)"
+        mass_per_unit_kg: 3.000
+        nb_units: 3
+        agribalyse_codes:
+          - {code: 5001, confidence: HIGH}
+          - {code: 5011, confidence: MEDIUM}
+        source: "3 girafes de 3 L = 9 L de biere au total. Biere artisanale locale"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Bouteille vin rouge cote du Rhone"
+    components:
+      - name: "Vin rouge (Cotes du Rhone)"
+        mass_per_unit_kg: 0.750
+        nb_units: 3
+        agribalyse_codes: [5214]
+        confidence: HIGH
+        source: "3 bouteilles de 75 cL. Vin rouge Cotes du Rhone"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Bouteille viognier"
+    components:
+      - name: "Vin blanc (Viognier)"
+        mass_per_unit_kg: 0.750
+        nb_units: 3
+        agribalyse_codes: [5215]
+        confidence: HIGH
+        source: "3 bouteilles de 75 cL. Vin blanc Viognier. Proxy: vin blanc sec"
+
+  - group: WE2
+    meal_type: "Social Event"
+    invoice_item: "Punch sans alcool 1L"
+    components:
+      - name: "Punch sans alcool (jus de fruits)"
+        mass_per_unit_kg: 1.000
+        nb_units: 4
+        agribalyse_codes:
+          - {code: 2008, confidence: MEDIUM}
+          - {code: 2048, confidence: LOW}
+        source: "4 litres de punch. Composition: jus de fruits et sirop. Codes: cocktail sans alcool / jus multifruit"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # WE3 – Barrio Latino Troyes (06/12/2025) & Bocaloca/Aurore UTT
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - group: WE3
+    meal_type: "Social Event"
+    invoice_item: "Aperitif dinatoire (bouchees salees + 1 punch)"
+    components:
+      - name: "Bouchees salees variees (feuillete, mini-quiche)"
+        pieces_per_person: 4
+        mass_per_piece_g: 25
+        agribalyse_codes: [25401, 25405]
+        confidence: MEDIUM
+        source: "Aperitif dinatoire 18.18 EUR/pers. 4 pieces feuillete/mini-quiche ~25 g. Hypothese de l'etude : 10 a 15 pieces de 25 a 30 g par personne en cocktail. Codes: feuillete fromage / quiche lorraine"
+
+      - name: "Mini-sandwichs/toasts"
+        mass_g_per_person: 100
+        agribalyse_codes: [25544]
+        confidence: LOW
+        source: "~3 toasts/sandwichs mini, 100 g total. Proxy: sandwich garnitures diverses"
+
+      - name: "Bouchees fromage/tartinade vegetale"
+        pieces_per_person: 2
+        mass_per_piece_g: 40
+        agribalyse_codes: [12001, 25621]
+        confidence: LOW
+        source: "VEGETARIEN. 2 bouchees fromage/tartinade ~40 g. Hypothese de l'etude, format cocktail. Codes: camembert / houmous"
+
+      - name: "Crudites et dips"
+        pieces_per_person: 1
+        mass_per_piece_g: 80
+        agribalyse_codes: [20009, 25621]
+        confidence: LOW
+        source: "Crudites/dips 80 g/pers. Codes: carotte / houmous"
+
+      - name: "Punch (boisson festive)"
+        volume_mL_per_person: 300
+        density_kg_L: 1.0
+        agribalyse_codes: [2008]
+        confidence: MEDIUM
+        source: "1 punch. Hypothese ~300 mL de boisson/pers. Hypothese de l'etude : 1 boisson par personne en cocktail. Proxy: cocktail a base de jus"
+
+  - group: WE3
+    meal_type: "Dejeuner"
+    invoice_item: "Plateau repas samedi (curry de legumes + riz + granola)"
+    components:
+      - name: "Curry de legumes"
+        pieces_per_person: 1
+        mass_per_piece_g: 250
+        agribalyse_codes: [25018]
+        confidence: MEDIUM
+        source: "Plateau 11.82 EUR/pers. Curry legumes ~250 g. GEMRCN 2011: plat principal legumes 200-300 g. Proxy: ratatouille cuisinee"
+
+      - name: "Riz blanc cuit (accompagnement)"
+        pieces_per_person: 1
+        mass_per_piece_g: 200
+        agribalyse_codes: [9104]
+        confidence: HIGH
+        source: "Riz en accompagnement 200 g cuit. GEMRCN 2011: feculent cuit 150-250 g"
+
+      - name: "Granola (dessert)"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [32108, 32109]
+        confidence: MEDIUM
+        source: "Granola dessert ~60 g. Ref: portion standard cereales 30-60 g. Proxy: muesli croustillant fruits / chocolat"
+
+  - group: WE3
+    meal_type: "Dejeuner"
+    invoice_item: "Plateau repas dimanche (wraps + brownie + clementine)"
+    components:
+      - name: "Wrap vegetarien"
+        pieces_per_person: 1
+        mass_per_piece_g: 250
+        agribalyse_codes: [25544]
+        confidence: MEDIUM
+        source: "Plateau 11.82 EUR/pers. Wrap 250 g. Ref: poids standard wrap 200-300 g. Proxy: sandwich garnitures"
+
+      - name: "Brownie au chocolat"
+        pieces_per_person: 1
+        mass_per_piece_g: 80
+        agribalyse_codes: [23032]
+        confidence: HIGH
+        source: "Brownie dessert 80 g. Ref: portion standard brownie individuel 60-100 g"
+
+      - name: "Clementine"
+        pieces_per_person: 1
+        mass_per_piece_g: 70
+        agribalyse_codes: ["13024_1"]
+        confidence: HIGH
+        source: "1 clementine ~70 g. Ref: poids moyen clementine 50-80 g. Code: mandarine pulpe crue (proxy clementine)"
+
+  - group: WE3
+    meal_type: "Pause gourmande"
+    invoice_item: "Pause samedi (cookie fruits jus de pommes the cafe)"
+    components:
+      - name: "Cookie aux pepites de chocolat"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [24684]
+        confidence: HIGH
+        source: "Pause 5.50 EUR/pers. 1 cookie ~40 g. Ref: poids standard cookie individuel 30-50 g"
+
+      - name: "Fruits frais"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [13039, 13034]
+        confidence: MEDIUM
+        source: "1 portion fruits 100 g. GEMRCN 2011. Codes: pomme crue / orange crue"
+
+      - name: "Jus de pomme"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [2074]
+        confidence: HIGH
+        source: "1 verre jus de pomme 200 mL"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe"
+
+  - group: WE3
+    meal_type: "Pause gourmande"
+    invoice_item: "Pause dimanche (pain d'epices fruits jus de pommes the cafe)"
+    components:
+      - name: "Pain d'epices"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [23200]
+        confidence: HIGH
+        source: "Pause 5.50 EUR/pers. 1 tranche pain d'epices ~60 g. Ref: portion standard pain d'epices individuel"
+
+      - name: "Fruits frais"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [13039, 13034]
+        confidence: MEDIUM
+        source: "1 portion fruits 100 g"
+
+      - name: "Jus de pomme"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [2074]
+        confidence: HIGH
+        source: "1 verre 200 mL"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe"
+
+  - group: WE3
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Petit-dejeuner samedi (croissants fruits jus de pomme cafe the)"
+    components:
+      - name: "Croissant au beurre"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes:
+          - {code: 7620, confidence: HIGH}
+          - {code: 7615, confidence: MEDIUM}
+        source: "PDJ 5.50 EUR/pers. 1 croissant ~60 g. GEMRCN 2011: 40-60 g viennoiserie PDJ"
+
+      - name: "Fruits frais"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [13039, 13034]
+        confidence: MEDIUM
+        source: "1 portion fruits 100 g"
+
+      - name: "Jus de pomme"
+        volume_mL_per_person: 150
+        density_kg_L: 1.0
+        agribalyse_codes: [2074]
+        confidence: HIGH
+        source: "1 verre jus 150 mL"
+
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+  - group: WE3
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Petit-dejeuner dimanche (cake noisettes citron pavot fruits jus de pommes cafe the)"
+    components:
+      - name: "Cake noisettes/citron/pavot"
+        pieces_per_person: 1
+        mass_per_piece_g: 80
+        agribalyse_codes: [23909]
+        confidence: MEDIUM
+        source: "PDJ 5.50 EUR/pers. Cake artisanal 80 g. Proxy: cake aux fruits"
+
+      - name: "Fruits frais"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [13039, 13034]
+        confidence: MEDIUM
+        source: "1 portion fruits 100 g"
+
+      - name: "Jus de pomme"
+        volume_mL_per_person: 150
+        density_kg_L: 1.0
+        agribalyse_codes: [2074]
+        confidence: HIGH
+        source: "1 verre 150 mL"
+
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "1 tasse cafe"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # WE4 – La Cocotte Solidaire Nantes (17/01/2026) & DeLiSe Traiteur
+  # ══════════════════════════════════════════════════════════════════════════
+
+  - group: WE4
+    meal_type: "Social Event"
+    invoice_item: "Repas vegetarien (atelier cuisine)"
+    components:
+      - name: "Soupe de legumes (entree)"
+        volume_mL_per_person: 250
+        density_kg_L: 1.0
+        agribalyse_codes: [25949, 25913]
+        confidence: LOW
+        source: "Repas vegetarien atelier 10 EUR/pers. Entree soupe 250 mL. GEMRCN 2011: soupe 200-300 mL. Cuisine participative -> produits simples. Codes: soupe tomate vermicelles / soupe carotte"
+
+      - name: "Plat de legumes cuisines (ratatouille, curry legumes)"
+        pieces_per_person: 1
+        mass_per_piece_g: 300
+        agribalyse_codes: [25018, 8297]
+        confidence: LOW
+        source: "Plat principal legumes 300 g. GEMRCN 2011: plat veg 250-350 g. Codes: ratatouille / flan de legumes"
+
+      - name: "Cereales/feculents (riz, pates, semoule)"
+        pieces_per_person: 1
+        mass_per_piece_g: 200
+        agribalyse_codes: [9104, 9816]
+        confidence: LOW
+        source: "Accompagnement feculent 200 g cuit. GEMRCN 2011. Codes: riz blanc cuit / pates cuites"
+
+      - name: "Dessert (fruit ou patisserie simple)"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [13039, 23909]
+        confidence: LOW
+        source: "Dessert 120 g. GEMRCN 2011: 100-130 g. Codes: pomme crue / cake fruits"
+
+      - name: "Pain"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [7100]
+        confidence: HIGH
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "40 g pain. GEMRCN 2011"
+
+  - group: WE4
+    meal_type: "Social Event"
+    invoice_item: "Bouteilles vin"
+    components:
+      - name: "Vin (rouge ou blanc)"
+        mass_per_unit_kg: 0.750
+        nb_units: 4
+        agribalyse_codes: [5214, 5215]
+        confidence: MEDIUM
+        source: "4 bouteilles de 75 cL. Ref: contenance standard bouteille vin"
+
+  - group: WE4
+    meal_type: "Social Event"
+    invoice_item: "Bouteilles de biere"
+    components:
+      - name: "Biere"
+        mass_per_unit_kg: 0.330
+        nb_units: 6
+        agribalyse_codes: [5001, 5011]
+        confidence: MEDIUM
+        source: "6 bouteilles 33 cL. Ref: contenance standard bouteille biere"
+
+  - group: WE4
+    meal_type: "Social Event"
+    invoice_item: "Bouteilles jus de pomme"
+    components:
+      - name: "Jus de pomme"
+        mass_per_unit_kg: 1.000
+        nb_units: 10
+        agribalyse_codes: [2074]
+        confidence: HIGH
+        source: "10 bouteilles 1 L. Ref: contenance standard bouteille jus"
+
+  # – Petit-dejeuner samedi – DeLiSe Traiteur (4 EUR/pers, 65 pers, menu non detaille)
+
+  - group: WE4
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Petit-dejeuner samedi"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "PDJ traiteur 4 EUR/pers. Menu non detaille. GEMRCN 2011: 1 boisson chaude PDJ"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Viennoiserie (croissant ou pain au chocolat)"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [7620, 7730, 7615]
+        confidence: MEDIUM
+        source: "1 viennoiserie ~60 g. GEMRCN 2011: 40-60 g. Budget 4 EUR coherent avec PDJ basique"
+
+      - name: "Jus de fruits"
+        volume_mL_per_person: 150
+        density_kg_L: 1.0
+        agribalyse_codes: [2012, 2074]
+        confidence: MEDIUM
+        mass_cv: 0.2   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "1 verre jus 150 mL"
+
+      - name: "Sucre"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "1 sachet sucre 5 g"
+
+      - name: "Lait"
+        mass_g_per_person: 30   # 29 mL x 1.03 kg/L, rounded to 30 g as in the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "30 mL lait. Standard dosette"
+
+  # – Pause cafe matin samedi – DeLiSe (3 EUR/pers, 65 pers)
+
+  - group: WE4
+    meal_type: "Pause cafe"
+    invoice_item: "Pause matin samedi"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "Pause cafe 3 EUR/pers. 1 tasse cafe"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Patisserie/biscuit"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [24684, 23909]
+        confidence: LOW
+        source: "1 biscuit/patisserie ~60 g. Ref: portion standard pause sucree traiteur. Codes: cookie / cake"
+
+      - name: "Sucre"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "1 sachet 5 g"
+
+      - name: "Lait"
+        mass_g_per_person: 30   # 29 mL x 1.03 kg/L, rounded to 30 g as in the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "30 mL lait"
+
+  # – Buffet dejeuner samedi – DeLiSe (23 EUR/pers, 65 pers, menu non detaille)
+
+  - group: WE4
+    meal_type: "Dejeuner"
+    invoice_item: "Buffet dejeuner samedi"
+    components:
+      - name: "Entree / salade composee"
+        pieces_per_person: 1
+        mass_per_piece_g: 150
+        agribalyse_codes: [25604, 25608]
+        confidence: LOW
+        source: "Buffet 23 EUR/pers. Entree 150 g. GEMRCN 2011: 80-150 g. Menu non detaille. Proxy: salade verte / taboule"
+
+      - name: "Plat principal vegetarien (legumes cuisines)"
+        pieces_per_person: 1
+        mass_per_piece_g: 200
+        agribalyse_codes: [25018, 8297]
+        confidence: LOW
+        source: "TOUS REPAS VEGETARIENS. Plat principal legumes 200 g. GEMRCN 2011: 200-300 g"
+
+      - name: "Accompagnement legumes"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [25018, 20009]
+        confidence: LOW
+        mass_cv: 0.35   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "Legumes 120 g. GEMRCN 2011: 100-150 g"
+
+      - name: "Accompagnement feculent"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [9104, 4028]
+        confidence: LOW
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "Feculent 100 g cuit. Codes: riz blanc cuit / pomme de terre bouillie"
+
+      - name: "Dessert"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [23525, 23909]
+        confidence: LOW
+        source: "Dessert 120 g. GEMRCN 2011: 100-130 g"
+
+      - name: "Pain"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [7100]
+        confidence: HIGH
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "40 g pain. GEMRCN 2011"
+
+  # – Pause cafe apres-midi samedi – DeLiSe (3 EUR/pers, 65 pers)
+
+  - group: WE4
+    meal_type: "Pause cafe"
+    invoice_item: "Pause apres-midi samedi"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "Pause cafe 3 EUR/pers. 1 tasse cafe"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Patisserie/biscuit"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [24684, 23909]
+        confidence: LOW
+        source: "1 biscuit/patisserie ~60 g"
+
+      - name: "Sucre"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "1 sachet 5 g"
+
+      - name: "Lait"
+        mass_g_per_person: 30   # value of the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "30 mL lait"
+
+  # – Petit-dejeuner dimanche – DeLiSe (4 EUR/pers, 65 pers)
+
+  - group: WE4
+    meal_type: "Petit-dejeuner"
+    invoice_item: "Petit-dejeuner dimanche"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "PDJ traiteur 4 EUR/pers. Menu non detaille"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Viennoiserie"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [7620, 7730, 7615]
+        confidence: MEDIUM
+        source: "1 viennoiserie ~60 g"
+
+      - name: "Jus de fruits"
+        volume_mL_per_person: 150
+        density_kg_L: 1.0
+        agribalyse_codes: [2012, 2074]
+        confidence: MEDIUM
+        mass_cv: 0.2   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "1 verre jus 150 mL"
+
+      - name: "Sucre"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "1 sachet sucre 5 g"
+
+      - name: "Lait"
+        mass_g_per_person: 30   # value of the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "30 mL lait"
+
+  # – Pause cafe matin dimanche – DeLiSe (3 EUR/pers, 65 pers)
+
+  - group: WE4
+    meal_type: "Pause cafe"
+    invoice_item: "Pause matin dimanche"
+    components:
+      - name: "Cafe filtre"
+        volume_mL_per_person: 200
+        density_kg_L: 1.0
+        agribalyse_codes: [18071]
+        confidence: HIGH
+        source: "Pause cafe 3 EUR/pers"
+
+      - name: "The infuse"
+        volume_mL_per_person: 60
+        density_kg_L: 1.0
+        agribalyse_codes: [18020]
+        confidence: HIGH
+        source: "30 % the"
+
+      - name: "Patisserie/biscuit"
+        pieces_per_person: 1
+        mass_per_piece_g: 60
+        agribalyse_codes: [24684, 23909]
+        confidence: LOW
+        source: "1 biscuit/patisserie ~60 g"
+
+      - name: "Sucre"
+        pieces_per_person: 1
+        mass_per_piece_g: 5
+        agribalyse_codes: [31016]
+        confidence: HIGH
+        source: "1 sachet 5 g"
+
+      - name: "Lait"
+        mass_g_per_person: 30   # value of the study inventory
+        agribalyse_codes: [19041]
+        confidence: HIGH
+        source: "30 mL lait"
+
+  # – Buffet dejeuner dimanche – DeLiSe (23 EUR/pers, 65 pers)
+
+  - group: WE4
+    meal_type: "Dejeuner"
+    invoice_item: "Buffet dejeuner dimanche"
+    components:
+      - name: "Entree / salade composee"
+        pieces_per_person: 1
+        mass_per_piece_g: 150
+        agribalyse_codes: [25604, 25608]
+        confidence: LOW
+        source: "Buffet 23 EUR/pers dimanche. Entree 150 g"
+
+      - name: "Plat principal vegetarien (legumes cuisines)"
+        pieces_per_person: 1
+        mass_per_piece_g: 200
+        agribalyse_codes: [25018, 8297]
+        confidence: LOW
+        source: "TOUS REPAS VEGETARIENS. Plat principal legumes 200 g"
+
+      - name: "Accompagnement legumes"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [25018, 20009]
+        confidence: LOW
+        mass_cv: 0.35   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "Legumes 120 g"
+
+      - name: "Accompagnement feculent"
+        pieces_per_person: 1
+        mass_per_piece_g: 100
+        agribalyse_codes: [9104, 4028]
+        confidence: LOW
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "Feculent 100 g cuit"
+
+      - name: "Dessert"
+        pieces_per_person: 1
+        mass_per_piece_g: 120
+        agribalyse_codes: [23525, 23909]
+        confidence: LOW
+        source: "Dessert 120 g"
+
+      - name: "Pain"
+        pieces_per_person: 1
+        mass_per_piece_g: 40
+        agribalyse_codes: [7100]
+        confidence: HIGH
+        mass_cv: 0.81   # portion below the GEMRCN adult range: upper bound at the 95th percentile
+        source: "40 g pain"

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+tests/test_example_output.xlsx
+~$*.xlsx
+.DS_Store
+
+# Agribalyse database: not versioned, to be downloaded (see data/README.md)
+data/*.xlsx
