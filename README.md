@@ -47,6 +47,40 @@ Each example folder contains the two input files and the two output files of the
 | `inventory.xlsx` | output 1: normalised inventory written by `inventory_builder.py` |
 | `results.xlsx` | output 2: impacts written by `agribalyse_autoderive.py` |
 
+## Which entry point?
+
+The tools automate the second half of the work: once each product has a mass and one or several plausible Agribalyse references, they compute every indicator, bound the result between a best and a worst scenario instead of arbitrating between candidates, and propagate the uncertainty. They do not automate the first half, which needs judgement: deciding what an invoice line actually contains, how much of it was served per person, and which references are plausible. That work is done once, by hand, in the input files. Three entry points are available, from the most traceable to the quickest.
+
+| Entry point | Use it when | What you write by hand | What is automated |
+|-------------|-------------|------------------------|-------------------|
+| **A. Invoice + decomposition file** | You only have invoices listing dishes, menus or lump-sum packages, without masses | The decomposition of each invoice line into products, with portion, source, candidate codes and confidence | Masses, inventory, impacts, scenarios, uncertainty |
+| **B. Inventory with codes** | Masses are known (orders by weight, stock records) and you choose the references yourself | One row per product: mass, confidence, one or several Agribalyse codes | Impacts, scenarios, uncertainty |
+| **C. Inventory with keywords** | Masses are known and you want a first estimate quickly | One row per product: mass, confidence, a few keywords | Search of the references, impacts, scenarios, uncertainty |
+
+**A** is the most work, but every assumption is written down next to its source, which is what an LCA report needs. It is the path followed for the convention, whose decomposition file runs to some 1,500 lines for 56 invoice lines. The command-line search (`--search`, see [How to use](#how-to-use)) helps find candidate codes while writing it.
+
+**B** skips the decomposition: write the normalised inventory directly, with the `Agribalyse_Code` or `Agribalyse_Codes` column.
+
+**C** is the quickest: with an `Agribalyse_Keywords` column, the script searches Agribalyse itself and keeps up to four matching references per product as candidates, switching to fuzzy search when the exact search finds nothing. An optional `Agribalyse_Exclude` column removes unwanted terms. Search results can be loose, for instance a raw ingredient next to a ready meal: always review the candidates kept in the `All_candidates` sheet of the output before using the results, and refine the keywords where needed.
+
+The three entry points can be mixed in one inventory, and an inventory first produced with C can be turned into B by keeping only the codes judged relevant.
+
+### How far can the matching be automated?
+
+To document this, entry point C was tested on the convention example with no human input at all: the 169 products of the inventory, with their masses but without any Agribalyse code, the product name itself being used as keywords. The table compares the results with the manual matching of the decomposition file.
+
+| Search | Products matched | Mass covered | Climate change, best – worst (kg CO₂ eq) |
+|--------|-----------------:|-------------:|-----------------------------------------:|
+| Exact | 117 / 169 | 625 kg | 955 – 1 481 |
+| Fuzzy, threshold 60 (default) | 110 / 169 | 584 kg | 846 – 1 873 |
+| Fuzzy, threshold 45 | 168 / 169 | 992 kg | 1 151 – 7 718 |
+| Fuzzy, threshold 30 | 169 / 169 | 997 kg | 1 321 – 7 878 |
+| *Manual matching (entry point A)* | *169 / 169* | *997 kg* | *1 231 – 1 495* |
+
+At the default threshold, about 40 % of the mass finds no reference at all. Lowering the threshold covers the whole mass, but with absurd candidates that inflate the worst case fivefold: "Café filtre" (filter coffee) returns a canelé, cooked carrot and fried sole; "Accompagnement féculent (riz ou pommes de terre)" (starchy side dish) returns a lace crêpe, breaded veal escalope and lamb heart; "Pain" (bread) returns pitta bread, but also pastis and gin. Fuzzy search measures how alike two strings of characters are, not what they mean: it works well with well-chosen keywords ("riz cuit", "pomme de terre cuite"), but choosing them is the same translation work as the decomposition file.
+
+Full automation therefore needs an understanding of what the products are, which string matching cannot provide. A large language model can provide it: given the invoice lines, it can draft the decomposition file, with products, portions, sources and candidate references, so that the remaining human task is to review the draft rather than to write it. The review cannot be skipped: portions and cited sources must be checked, as a language model may state a plausible value or cite a reference that does not exist. This step is not part of the tools in this repository.
+
 ## How to use
 
 From the repository root, with the environment activated (see [Requirements](#requirements)) and the Agribalyse spreadsheet downloaded into `data/` (see [Agribalyse data](#agribalyse-data)):
